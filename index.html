@@ -1,0 +1,579 @@
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VisionScan — تحليل الصور</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top right, #19335f 0, transparent 35%),
+        radial-gradient(circle at bottom left, #111c3d 0, transparent 35%),
+        #070b14;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 25px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #4f8cff, #8b5cf6);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 0 30px rgba(79, 140, 255, .35);
+    }
+
+    .header p {
+      color: #9ca9c2;
+      font-size: 15px;
+    }
+
+    .card {
+      background: rgba(14, 20, 35, .88);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 24px;
+      padding: 35px;
+      box-shadow: 0 25px 80px rgba(0,0,0,.45);
+      backdrop-filter: blur(18px);
+    }
+
+    .upload-area {
+      min-height: 330px;
+      border: 2px dashed #34415c;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      transition: .25s;
+      padding: 30px;
+    }
+
+    .upload-area:hover,
+    .upload-area.dragover {
+      border-color: #5b8cff;
+      background: rgba(79, 140, 255, .06);
+    }
+
+    .upload-icon {
+      width: 75px;
+      height: 75px;
+      border-radius: 20px;
+      background: rgba(79, 140, 255, .12);
+      display: grid;
+      place-items: center;
+      font-size: 35px;
+      margin-bottom: 20px;
+    }
+
+    .upload-area h2 {
+      margin-bottom: 10px;
+      font-size: 22px;
+    }
+
+    .upload-area p {
+      color: #8996ad;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 13px 25px;
+      color: white;
+      background: linear-gradient(135deg, #4f8cff, #7357e8);
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(79,140,255,.25);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .preview {
+      display: none;
+      margin-top: 25px;
+    }
+
+    .preview img {
+      width: 100%;
+      max-height: 380px;
+      object-fit: contain;
+      border-radius: 16px;
+      background: #050811;
+      border: 1px solid #263149;
+    }
+
+    .file-info {
+      margin-top: 15px;
+      display: flex;
+      justify-content: space-between;
+      color: #9ca9c2;
+      font-size: 14px;
+    }
+
+    .scan {
+      display: none;
+      margin-top: 25px;
+    }
+
+    .scan-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .scan-header span:last-child {
+      color: #5b9cff;
+      font-weight: bold;
+    }
+
+    .progress {
+      width: 100%;
+      height: 9px;
+      background: #1b2437;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #4f8cff, #8b5cf6);
+      transition: width .25s;
+    }
+
+    .status {
+      margin-top: 12px;
+      color: #8996ad;
+      font-size: 14px;
+    }
+
+    .result {
+      display: none;
+      margin-top: 25px;
+      animation: show .4s ease;
+    }
+
+    @keyframes show {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .result-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .success {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background: #123d2b;
+      color: #42e49a;
+      display: grid;
+      place-items: center;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .result-box {
+      background: #0a101e;
+      border: 1px solid #202c43;
+      border-radius: 14px;
+      padding: 17px;
+    }
+
+    .result-box small {
+      display: block;
+      color: #718099;
+      margin-bottom: 8px;
+    }
+
+    .result-box strong {
+      font-size: 15px;
+    }
+
+    .reset {
+      margin-top: 20px;
+      background: #182237;
+    }
+
+    .notice {
+      text-align: center;
+      color: #66748d;
+      font-size: 12px;
+      margin-top: 18px;
+    }
+
+    @media (max-width: 650px) {
+      .card {
+        padding: 20px;
+      }
+
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">◈</div>
+      VisionScan
+    </div>
+    <p>منصة تجريبية لتحليل الصور داخل المتصفح</p>
+  </div>
+
+  <div class="card">
+
+    <div class="upload-area" id="dropArea">
+      <div class="upload-icon">↑</div>
+
+      <h2>ارفع صورة للتحليل</h2>
+
+      <p>
+        اسحب الصورة هنا أو اخترها من جهازك
+      </p>
+
+      <label class="btn">
+        اختيار صورة
+        <input type="file" id="fileInput" accept="image/*">
+      </label>
+    </div>
+
+    <div class="preview" id="preview">
+      <img id="previewImage" alt="Preview">
+
+      <div class="file-info">
+        <span id="fileName">image.jpg</span>
+        <span id="fileSize">0 KB</span>
+      </div>
+    </div>
+
+    <div class="scan" id="scan">
+      <div class="scan-header">
+        <span>جاري تحليل الصورة...</span>
+        <span id="percentage">0%</span>
+      </div>
+
+      <div class="progress">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <div class="status" id="status">
+        تجهيز الصورة...
+      </div>
+    </div>
+
+    <div class="result" id="result">
+
+      <div class="result-title">
+        <div class="success">✓</div>
+        <div>
+          <strong>اكتمل التحليل</strong>
+          <div style="color:#7e8ca5;font-size:13px;margin-top:4px">
+            تم إنشاء نتيجة تجريبية
+          </div>
+        </div>
+      </div>
+
+      <div class="result-grid">
+
+        <div class="result-box">
+          <small>نوع الملف</small>
+          <strong id="typeResult">JPEG</strong>
+        </div>
+
+        <div class="result-box">
+          <small>حالة الصورة</small>
+          <strong style="color:#42e49a">صالحة</strong>
+        </div>
+
+        <div class="result-box">
+          <small>درجة التحليل</small>
+          <strong>98.4%</strong>
+        </div>
+
+        <div class="result-box">
+          <small>الدقة</small>
+          <strong id="resolution">--</strong>
+        </div>
+
+        <div class="result-box">
+          <small>الحجم</small>
+          <strong id="sizeResult">--</strong>
+        </div>
+
+        <div class="result-box">
+          <small>نتيجة الفحص</small>
+          <strong style="color:#42e49a">Complete</strong>
+        </div>
+
+      </div>
+
+      <button class="btn reset" onclick="resetPage()">
+        تحليل صورة أخرى
+      </button>
+
+    </div>
+
+    <div class="notice">
+      Demo — هذا الموقع تجريبي ولا يرسل الصور إلى خادم خارجي.
+    </div>
+
+  </div>
+</div>
+
+
+<script>
+
+const fileInput = document.getElementById("fileInput");
+const dropArea = document.getElementById("dropArea");
+
+const preview = document.getElementById("preview");
+const previewImage = document.getElementById("previewImage");
+
+const scan = document.getElementById("scan");
+const result = document.getElementById("result");
+
+const progressBar = document.getElementById("progressBar");
+const percentage = document.getElementById("percentage");
+const statusText = document.getElementById("status");
+
+let selectedFile = null;
+
+
+// اختيار الملف
+fileInput.addEventListener("change", function() {
+
+  if (this.files.length > 0) {
+    handleFile(this.files[0]);
+  }
+
+});
+
+
+// Drag & Drop
+dropArea.addEventListener("dragover", function(e) {
+  e.preventDefault();
+  dropArea.classList.add("dragover");
+});
+
+dropArea.addEventListener("dragleave", function() {
+  dropArea.classList.remove("dragover");
+});
+
+dropArea.addEventListener("drop", function(e) {
+
+  e.preventDefault();
+
+  dropArea.classList.remove("dragover");
+
+  const file = e.dataTransfer.files[0];
+
+  if (file && file.type.startsWith("image/")) {
+    handleFile(file);
+  }
+
+});
+
+
+function handleFile(file) {
+
+  selectedFile = file;
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+
+    previewImage.src = e.target.result;
+
+    document.getElementById("fileName").textContent = file.name;
+
+    document.getElementById("fileSize").textContent =
+      formatSize(file.size);
+
+    dropArea.style.display = "none";
+    preview.style.display = "block";
+    scan.style.display = "block";
+
+    startScan();
+
+  };
+
+  reader.readAsDataURL(file);
+}
+
+
+function formatSize(bytes) {
+
+  if (bytes < 1024) {
+    return bytes + " B";
+  }
+
+  if (bytes < 1024 * 1024) {
+    return (bytes / 1024).toFixed(1) + " KB";
+  }
+
+  return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+
+}
+
+
+function startScan() {
+
+  let progress = 0;
+
+  const messages = [
+    "قراءة بيانات الصورة...",
+    "فحص خصائص الملف...",
+    "تحليل أبعاد الصورة...",
+    "معالجة البيانات...",
+    "إنهاء التحليل..."
+  ];
+
+  const interval = setInterval(function() {
+
+    progress += Math.floor(Math.random() * 8) + 4;
+
+    if (progress >= 100) {
+
+      progress = 100;
+
+      clearInterval(interval);
+
+      progressBar.style.width = "100%";
+      percentage.textContent = "100%";
+
+      statusText.textContent = "اكتمل التحليل";
+
+      showResult();
+
+      return;
+    }
+
+    progressBar.style.width = progress + "%";
+    percentage.textContent = progress + "%";
+
+    const index = Math.min(
+      Math.floor(progress / 20),
+      messages.length - 1
+    );
+
+    statusText.textContent = messages[index];
+
+  }, 180);
+
+}
+
+
+function showResult() {
+
+  const image = new Image();
+
+  image.onload = function() {
+
+    document.getElementById("resolution").textContent =
+      this.width + " × " + this.height;
+
+  };
+
+  image.src = previewImage.src;
+
+  document.getElementById("typeResult").textContent =
+    selectedFile.type || "Image";
+
+  document.getElementById("sizeResult").textContent =
+    formatSize(selectedFile.size);
+
+  setTimeout(function() {
+    result.style.display = "block";
+  }, 500);
+
+}
+
+
+function resetPage() {
+
+  selectedFile = null;
+
+  fileInput.value = "";
+
+  dropArea.style.display = "flex";
+  preview.style.display = "none";
+  scan.style.display = "none";
+  result.style.display = "none";
+
+  progressBar.style.width = "0%";
+  percentage.textContent = "0%";
+  statusText.textContent = "تجهيز الصورة...";
+
+  previewImage.src = "";
+
+}
+
+</script>
+
+</body>
+</html>
+```
