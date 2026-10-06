@@ -1,553 +1,228 @@
 ```html
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Device Security Console</title>
+<title>Photo Extraction Simulation</title>
 
 <style>
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    background: #020406;
-    color: #00ff88;
-    font-family: "Courier New", monospace;
-    min-height: 100vh;
-    overflow: hidden;
-}
-
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    background:
-        repeating-linear-gradient(
-            0deg,
-            rgba(255,255,255,.015) 0px,
-            rgba(255,255,255,.015) 1px,
-            transparent 1px,
-            transparent 4px
-        );
-    z-index: 20;
-}
-
-.container {
-    width: 100%;
-    max-width: 1100px;
-    height: 100vh;
-    margin: auto;
-    padding: 25px;
-    display: flex;
-    flex-direction: column;
-}
-
-.topbar {
-    border: 1px solid #0c603b;
-    background: #06100b;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 0 25px rgba(0,255,136,.08);
-}
-
-.logo {
-    font-weight: bold;
-    letter-spacing: 2px;
-}
-
-.status {
-    color: #ff334f;
-    animation: blink 1s infinite;
-}
-
-@keyframes blink {
-    50% { opacity: .35; }
-}
-
-.warning {
-    margin-top: 15px;
-    border: 1px solid #66202a;
-    background: rgba(100,0,20,.16);
-    color: #ff5268;
-    padding: 12px;
-    text-align: center;
-    letter-spacing: 1px;
-}
-
-.grid {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 1.4fr .8fr;
-    gap: 18px;
-    margin-top: 18px;
-    min-height: 0;
-}
-
-.panel {
-    border: 1px solid #0b5a39;
-    background: rgba(4,12,8,.92);
-    padding: 18px;
-    overflow: hidden;
-    box-shadow: inset 0 0 30px rgba(0,255,136,.025);
-}
-
-.panel-title {
-    color: #7dffba;
-    border-bottom: 1px solid #103d2a;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
-}
-
-.terminal {
-    height: calc(100% - 45px);
-    overflow: hidden;
-    font-size: 13px;
-    line-height: 1.7;
-}
-
-.line {
-    opacity: 0;
-    animation: appear .15s forwards;
-}
-
-@keyframes appear {
-    to { opacity: 1; }
-}
-
-.gray {
-    color: #657a6e;
-}
-
-.red {
-    color: #ff4058;
-}
-
-.yellow {
-    color: #ffe066;
-}
-
-.blue {
-    color: #52a8ff;
-}
-
-.progress-wrap {
-    margin-top: 20px;
-}
-
-.progress-info {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 13px;
-}
-
-.progress {
-    height: 18px;
-    border: 1px solid #116b43;
-    padding: 3px;
-}
-
-.bar {
-    height: 100%;
-    width: 0%;
-    background: #00ff88;
-    box-shadow: 0 0 15px #00ff88;
-    transition: width .15s;
-}
-
-.device {
-    display: flex;
-    justify-content: center;
-    margin: 10px 0 25px;
-}
-
-.phone {
-    width: 150px;
-    height: 270px;
-    border: 3px solid #1a7e50;
-    border-radius: 25px;
-    padding: 13px;
-    position: relative;
-    box-shadow: 0 0 30px rgba(0,255,136,.12);
-}
-
-.phone::before {
-    content: "";
-    width: 50px;
-    height: 5px;
-    background: #1a7e50;
-    position: absolute;
-    top: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-radius: 10px;
-}
-
-.screen {
-    margin-top: 12px;
-    height: 100%;
-    background:
-        radial-gradient(circle at 50% 40%, #073d27, #020806 60%);
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    font-size: 11px;
-}
-
-.scan-circle {
-    width: 80px;
-    height: 80px;
-    border: 2px solid #00ff88;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    animation: scan 1.5s linear infinite;
-}
-
-@keyframes scan {
-    0% {
-        box-shadow: 0 0 5px #00ff88;
-    }
-    50% {
-        box-shadow: 0 0 35px #00ff88;
-    }
-    100% {
-        box-shadow: 0 0 5px #00ff88;
-    }
-}
-
-.stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.stat {
-    border: 1px solid #123e2c;
-    padding: 12px;
-    background: #050d09;
-}
-
-.stat small {
-    display: block;
-    color: #688276;
-    margin-bottom: 6px;
-}
-
-.stat strong {
-    font-size: 18px;
-}
-
-.photos {
-    margin-top: 15px;
-    height: 115px;
-    overflow: hidden;
-    border: 1px solid #123e2c;
-    padding: 10px;
-    font-size: 12px;
-}
-
-.photo-row {
-    margin: 5px 0;
-    color: #8fbca5;
-}
-
-.footer {
-    margin-top: 12px;
-    text-align: center;
-    color: #45584c;
-    font-size: 11px;
-}
-
-.simulation {
-    color: #ffe066;
-}
-
-@media (max-width: 750px) {
     body {
-        overflow: auto;
-    }
-
-    .container {
-        height: auto;
+        margin: 0;
+        background: #030604;
+        color: #00ff88;
+        font-family: monospace;
         min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
-    .grid {
-        grid-template-columns: 1fr;
+    .box {
+        width: 90%;
+        max-width: 700px;
+        padding: 30px;
+        border: 1px solid #00ff88;
+        background: #07100b;
+        text-align: center;
+        box-shadow: 0 0 40px rgba(0,255,136,.12);
+    }
+
+    h1 {
+        margin-top: 0;
+    }
+
+    input {
+        display: none;
+    }
+
+    .button {
+        display: inline-block;
+        padding: 14px 25px;
+        background: #00ff88;
+        color: #001b0d;
+        font-weight: bold;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    #preview {
+        display: none;
+        margin: 25px auto;
+        max-width: 100%;
+        max-height: 400px;
+        border: 2px solid #00ff88;
+        box-shadow: 0 0 25px rgba(0,255,136,.25);
+    }
+
+    .progress {
+        height: 18px;
+        border: 1px solid #00ff88;
+        padding: 3px;
+        margin-top: 20px;
+    }
+
+    #bar {
+        width: 0%;
+        height: 100%;
+        background: #00ff88;
+        transition: width .15s;
+    }
+
+    #status {
+        margin-top: 15px;
+        min-height: 25px;
+    }
+
+    #result {
+        display: none;
+        margin-top: 20px;
+        color: #00ff88;
+        font-size: 20px;
     }
 
     .terminal {
-        height: 300px;
+        text-align: left;
+        direction: ltr;
+        margin-top: 20px;
+        height: 100px;
+        overflow: hidden;
+        color: #78ffb5;
+        font-size: 13px;
     }
-}
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="box">
 
-    <div class="topbar">
-        <div class="logo">◈ DEVICE SECURITY CONSOLE</div>
-        <div class="status">● UNAUTHORIZED ACCESS</div>
+    <h1>DEVICE PHOTO CONSOLE</h1>
+
+    <p>PHOTO EXTRACTION SIMULATION</p>
+
+    <label class="button">
+        اختيار الصورة
+        <input type="file" id="file" accept="image/*">
+    </label>
+
+    <img id="preview">
+
+    <div class="terminal" id="terminal">
+        > Waiting for image...
     </div>
 
-    <div class="warning">
-        ⚠ REMOTE DEVICE SESSION DETECTED — SECURE CHANNEL BYPASSED
+    <div class="progress">
+        <div id="bar"></div>
     </div>
 
-    <div class="grid">
+    <div id="status">لم يتم اختيار صورة</div>
 
-        <div class="panel">
-
-            <div class="panel-title">
-                [ REMOTE TERMINAL ]
-            </div>
-
-            <div class="terminal" id="terminal"></div>
-
-            <div class="progress-wrap">
-
-                <div class="progress-info">
-                    <span>PHOTO EXTRACTION</span>
-                    <span id="percent">0%</span>
-                </div>
-
-                <div class="progress">
-                    <div class="bar" id="bar"></div>
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="panel">
-
-            <div class="panel-title">
-                [ TARGET DEVICE ]
-            </div>
-
-            <div class="device">
-
-                <div class="phone">
-
-                    <div class="screen">
-
-                        <div>
-                            <div class="scan-circle">
-                                SCAN
-                            </div>
-
-                            <br>
-
-                            DEVICE LINKED
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="stats">
-
-                <div class="stat">
-                    <small>DEVICE</small>
-                    <strong>ANDROID</strong>
-                </div>
-
-                <div class="stat">
-                    <small>CONNECTION</small>
-                    <strong>ACTIVE</strong>
-                </div>
-
-                <div class="stat">
-                    <small>PHOTOS</small>
-                    <strong id="photoCount">0</strong>
-                </div>
-
-                <div class="stat">
-                    <small>DATA</small>
-                    <strong id="data">0 MB</strong>
-                </div>
-
-            </div>
-
-            <div class="photos" id="photos"></div>
-
-        </div>
-
-    </div>
-
-    <div class="footer">
-        <span class="simulation">
-            DEMONSTRATION / SIMULATION ONLY — NO REAL DEVICE ACCESS
-        </span>
+    <div id="result">
+        ✓ SIMULATION COMPLETE
     </div>
 
 </div>
 
-
 <script>
 
-const terminal = document.getElementById("terminal");
+const fileInput = document.getElementById("file");
+const preview = document.getElementById("preview");
 const bar = document.getElementById("bar");
-const percent = document.getElementById("percent");
-const photoCount = document.getElementById("photoCount");
-const data = document.getElementById("data");
-const photos = document.getElementById("photos");
+const status = document.getElementById("status");
+const terminal = document.getElementById("terminal");
+const result = document.getElementById("result");
 
-const commands = [
+fileInput.addEventListener("change", function () {
 
-    ["[+] Initializing remote session...", "gray"],
-    ["[*] Searching for available device...", ""],
-    ["[+] Target found: Android Device", "blue"],
-    ["[*] Establishing encrypted tunnel...", ""],
-    ["[+] Secure channel established", ""],
-    ["[*] Checking device permissions...", ""],
-    ["[+] Permission response received", ""],
-    ["[*] Loading media directory...", ""],
-    ["[+] /DCIM/Camera detected", ""],
-    ["[+] /Pictures detected", ""],
-    ["[*] Indexing image files...", ""],
-    ["[+] 128 image records discovered", ""],
-    ["[*] Preparing transfer queue...", ""],
-    ["[!] Beginning simulated extraction...", "red"]
+    const file = this.files[0];
 
-];
+    if (!file) return;
 
-let commandIndex = 0;
+    // عرض الصورة التي اختارها المستخدم
+    const reader = new FileReader();
 
-function addCommand() {
+    reader.onload = function (event) {
 
-    if (commandIndex >= commands.length) {
-        startExtraction();
-        return;
-    }
+        preview.src = event.target.result;
+        preview.style.display = "block";
 
-    const item = document.createElement("div");
+        startSimulation(file.name);
 
-    item.className = "line " + commands[commandIndex][1];
+    };
 
-    item.textContent = commands[commandIndex][0];
+    reader.readAsDataURL(file);
 
-    terminal.appendChild(item);
+});
 
-    terminal.scrollTop = terminal.scrollHeight;
 
-    commandIndex++;
-
-    setTimeout(addCommand, 500);
-
-}
-
-function startExtraction() {
+function startSimulation(fileName) {
 
     let progress = 0;
-    let count = 0;
 
-    const filenames = [
-        "IMG_2026_001.jpg",
-        "IMG_2026_002.jpg",
-        "DSC_4812.jpg",
-        "photo_0831.jpg",
-        "IMG_7742.png",
-        "Screenshot_19.png",
-        "Camera_2026.jpg",
-        "Vacation_04.jpg",
-        "IMG_9912.jpg",
-        "Photo_Archive.jpg"
+    result.style.display = "none";
+
+    terminal.innerHTML =
+        "> Target image detected...<br>" +
+        "> File: " + fileName + "<br>";
+
+    status.textContent = "جاري تحليل الصورة...";
+
+    bar.style.width = "0%";
+
+    const messages = [
+        "Reading image...",
+        "Analyzing file...",
+        "Preparing transfer...",
+        "Processing image...",
+        "Finalizing..."
     ];
 
-    const interval = setInterval(() => {
+    const timer = setInterval(function () {
 
-        progress += Math.floor(Math.random() * 4) + 1;
-
-        if (progress > 100)
-            progress = 100;
-
-        bar.style.width = progress + "%";
-        percent.textContent = progress + "%";
-
-        count = Math.floor((progress / 100) * 128);
-
-        photoCount.textContent = count;
-
-        data.textContent =
-            (count * 2.7).toFixed(1) + " MB";
-
-        if (Math.random() > .65) {
-
-            const row = document.createElement("div");
-
-            row.className = "photo-row";
-
-            const name =
-                filenames[Math.floor(Math.random() * filenames.length)];
-
-            row.textContent =
-                "✓ " + name + "  [" +
-                Math.floor(Math.random() * 900 + 100) +
-                " KB]";
-
-            photos.prepend(row);
-
-            if (photos.children.length > 7)
-                photos.removeChild(photos.lastChild);
-
-        }
+        progress += Math.floor(Math.random() * 7) + 3;
 
         if (progress >= 100) {
+            progress = 100;
+            clearInterval(timer);
 
-            clearInterval(interval);
+            bar.style.width = "100%";
+            status.textContent = "اكتملت المحاكاة";
 
-            finish();
+            terminal.innerHTML +=
+                "> Image processed successfully.<br>" +
+                "> 100% complete.<br>";
 
+            result.style.display = "block";
+
+            return;
         }
 
-    }, 130);
+        bar.style.width = progress + "%";
+
+        const index =
+            Math.min(
+                Math.floor(progress / 20),
+                messages.length - 1
+            );
+
+        status.textContent =
+            messages[index] + " " + progress + "%";
+
+        if (Math.random() > .5) {
+
+            terminal.innerHTML +=
+                "> Processing block " +
+                Math.floor(progress / 5) +
+                "...<br>";
+
+            terminal.scrollTop =
+                terminal.scrollHeight;
+        }
+
+    }, 180);
 
 }
-
-function finish() {
-
-    const final = document.createElement("div");
-
-    final.className = "line";
-
-    final.style.marginTop = "12px";
-    final.style.color = "#00ff88";
-    final.style.fontWeight = "bold";
-
-    final.textContent =
-        "[✓] SIMULATION COMPLETE — 128 FILES PROCESSED";
-
-    terminal.appendChild(final);
-
-    const note = document.createElement("div");
-
-    note.className = "line yellow";
-
-    note.style.marginTop = "8px";
-
-    note.textContent =
-        "[SYSTEM] This was a visual simulation. No files were accessed.";
-
-    terminal.appendChild(note);
-
-}
-
-addCommand();
 
 </script>
 
