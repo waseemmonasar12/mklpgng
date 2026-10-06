@@ -1,576 +1,553 @@
 ```html
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VisionScan — تحليل الصور</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Device Security Console</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #020406;
+    color: #00ff88;
+    font-family: "Courier New", monospace;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255,255,255,.015) 0px,
+            rgba(255,255,255,.015) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+    z-index: 20;
+}
+
+.container {
+    width: 100%;
+    max-width: 1100px;
+    height: 100vh;
+    margin: auto;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+}
+
+.topbar {
+    border: 1px solid #0c603b;
+    background: #06100b;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 0 25px rgba(0,255,136,.08);
+}
+
+.logo {
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.status {
+    color: #ff334f;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% { opacity: .35; }
+}
+
+.warning {
+    margin-top: 15px;
+    border: 1px solid #66202a;
+    background: rgba(100,0,20,.16);
+    color: #ff5268;
+    padding: 12px;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.4fr .8fr;
+    gap: 18px;
+    margin-top: 18px;
+    min-height: 0;
+}
+
+.panel {
+    border: 1px solid #0b5a39;
+    background: rgba(4,12,8,.92);
+    padding: 18px;
+    overflow: hidden;
+    box-shadow: inset 0 0 30px rgba(0,255,136,.025);
+}
+
+.panel-title {
+    color: #7dffba;
+    border-bottom: 1px solid #103d2a;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.terminal {
+    height: calc(100% - 45px);
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.line {
+    opacity: 0;
+    animation: appear .15s forwards;
+}
+
+@keyframes appear {
+    to { opacity: 1; }
+}
+
+.gray {
+    color: #657a6e;
+}
+
+.red {
+    color: #ff4058;
+}
+
+.yellow {
+    color: #ffe066;
+}
+
+.blue {
+    color: #52a8ff;
+}
+
+.progress-wrap {
+    margin-top: 20px;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.progress {
+    height: 18px;
+    border: 1px solid #116b43;
+    padding: 3px;
+}
+
+.bar {
+    height: 100%;
+    width: 0%;
+    background: #00ff88;
+    box-shadow: 0 0 15px #00ff88;
+    transition: width .15s;
+}
+
+.device {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0 25px;
+}
+
+.phone {
+    width: 150px;
+    height: 270px;
+    border: 3px solid #1a7e50;
+    border-radius: 25px;
+    padding: 13px;
+    position: relative;
+    box-shadow: 0 0 30px rgba(0,255,136,.12);
+}
+
+.phone::before {
+    content: "";
+    width: 50px;
+    height: 5px;
+    background: #1a7e50;
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 10px;
+}
+
+.screen {
+    margin-top: 12px;
+    height: 100%;
+    background:
+        radial-gradient(circle at 50% 40%, #073d27, #020806 60%);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 11px;
+}
+
+.scan-circle {
+    width: 80px;
+    height: 80px;
+    border: 2px solid #00ff88;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    animation: scan 1.5s linear infinite;
+}
+
+@keyframes scan {
+    0% {
+        box-shadow: 0 0 5px #00ff88;
     }
+    50% {
+        box-shadow: 0 0 35px #00ff88;
+    }
+    100% {
+        box-shadow: 0 0 5px #00ff88;
+    }
+}
 
+.stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.stat {
+    border: 1px solid #123e2c;
+    padding: 12px;
+    background: #050d09;
+}
+
+.stat small {
+    display: block;
+    color: #688276;
+    margin-bottom: 6px;
+}
+
+.stat strong {
+    font-size: 18px;
+}
+
+.photos {
+    margin-top: 15px;
+    height: 115px;
+    overflow: hidden;
+    border: 1px solid #123e2c;
+    padding: 10px;
+    font-size: 12px;
+}
+
+.photo-row {
+    margin: 5px 0;
+    color: #8fbca5;
+}
+
+.footer {
+    margin-top: 12px;
+    text-align: center;
+    color: #45584c;
+    font-size: 11px;
+}
+
+.simulation {
+    color: #ffe066;
+}
+
+@media (max-width: 750px) {
     body {
-      min-height: 100vh;
-      background:
-        radial-gradient(circle at top right, #19335f 0, transparent 35%),
-        radial-gradient(circle at bottom left, #111c3d 0, transparent 35%),
-        #070b14;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 25px;
+        overflow: auto;
     }
 
     .container {
-      width: 100%;
-      max-width: 900px;
+        height: auto;
+        min-height: 100vh;
     }
 
-    .header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .logo {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 28px;
-      font-weight: bold;
-      margin-bottom: 12px;
-    }
-
-    .logo-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #4f8cff, #8b5cf6);
-      display: grid;
-      place-items: center;
-      box-shadow: 0 0 30px rgba(79, 140, 255, .35);
-    }
-
-    .header p {
-      color: #9ca9c2;
-      font-size: 15px;
-    }
-
-    .card {
-      background: rgba(14, 20, 35, .88);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 24px;
-      padding: 35px;
-      box-shadow: 0 25px 80px rgba(0,0,0,.45);
-      backdrop-filter: blur(18px);
-    }
-
-    .upload-area {
-      min-height: 330px;
-      border: 2px dashed #34415c;
-      border-radius: 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      cursor: pointer;
-      transition: .25s;
-      padding: 30px;
-    }
-
-    .upload-area:hover,
-    .upload-area.dragover {
-      border-color: #5b8cff;
-      background: rgba(79, 140, 255, .06);
-    }
-
-    .upload-icon {
-      width: 75px;
-      height: 75px;
-      border-radius: 20px;
-      background: rgba(79, 140, 255, .12);
-      display: grid;
-      place-items: center;
-      font-size: 35px;
-      margin-bottom: 20px;
-    }
-
-    .upload-area h2 {
-      margin-bottom: 10px;
-      font-size: 22px;
-    }
-
-    .upload-area p {
-      color: #8996ad;
-      margin-bottom: 20px;
-    }
-
-    .btn {
-      border: none;
-      border-radius: 12px;
-      padding: 13px 25px;
-      color: white;
-      background: linear-gradient(135deg, #4f8cff, #7357e8);
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: .2s;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(79,140,255,.25);
-    }
-
-    input[type="file"] {
-      display: none;
-    }
-
-    .preview {
-      display: none;
-      margin-top: 25px;
-    }
-
-    .preview img {
-      width: 100%;
-      max-height: 380px;
-      object-fit: contain;
-      border-radius: 16px;
-      background: #050811;
-      border: 1px solid #263149;
-    }
-
-    .file-info {
-      margin-top: 15px;
-      display: flex;
-      justify-content: space-between;
-      color: #9ca9c2;
-      font-size: 14px;
-    }
-
-    .scan {
-      display: none;
-      margin-top: 25px;
-    }
-
-    .scan-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-
-    .scan-header span:last-child {
-      color: #5b9cff;
-      font-weight: bold;
-    }
-
-    .progress {
-      width: 100%;
-      height: 9px;
-      background: #1b2437;
-      border-radius: 20px;
-      overflow: hidden;
-    }
-
-    .progress-bar {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, #4f8cff, #8b5cf6);
-      transition: width .25s;
-    }
-
-    .status {
-      margin-top: 12px;
-      color: #8996ad;
-      font-size: 14px;
-    }
-
-    .result {
-      display: none;
-      margin-top: 25px;
-      animation: show .4s ease;
-    }
-
-    @keyframes show {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .result-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 18px;
-    }
-
-    .success {
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
-      background: #123d2b;
-      color: #42e49a;
-      display: grid;
-      place-items: center;
-    }
-
-    .result-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-    .result-box {
-      background: #0a101e;
-      border: 1px solid #202c43;
-      border-radius: 14px;
-      padding: 17px;
-    }
-
-    .result-box small {
-      display: block;
-      color: #718099;
-      margin-bottom: 8px;
-    }
-
-    .result-box strong {
-      font-size: 15px;
-    }
-
-    .reset {
-      margin-top: 20px;
-      background: #182237;
-    }
-
-    .notice {
-      text-align: center;
-      color: #66748d;
-      font-size: 12px;
-      margin-top: 18px;
-    }
-
-    @media (max-width: 650px) {
-      .card {
-        padding: 20px;
-      }
-
-      .result-grid {
+    .grid {
         grid-template-columns: 1fr;
-      }
     }
-  </style>
+
+    .terminal {
+        height: 300px;
+    }
+}
+</style>
 </head>
 
 <body>
 
 <div class="container">
 
-  <div class="header">
-    <div class="logo">
-      <div class="logo-icon">◈</div>
-      VisionScan
-    </div>
-    <p>منصة تجريبية لتحليل الصور داخل المتصفح</p>
-  </div>
-
-  <div class="card">
-
-    <div class="upload-area" id="dropArea">
-      <div class="upload-icon">↑</div>
-
-      <h2>ارفع صورة للتحليل</h2>
-
-      <p>
-        اسحب الصورة هنا أو اخترها من جهازك
-      </p>
-
-      <label class="btn">
-        اختيار صورة
-        <input type="file" id="fileInput" accept="image/*">
-      </label>
+    <div class="topbar">
+        <div class="logo">◈ DEVICE SECURITY CONSOLE</div>
+        <div class="status">● UNAUTHORIZED ACCESS</div>
     </div>
 
-    <div class="preview" id="preview">
-      <img id="previewImage" alt="Preview">
-
-      <div class="file-info">
-        <span id="fileName">image.jpg</span>
-        <span id="fileSize">0 KB</span>
-      </div>
+    <div class="warning">
+        ⚠ REMOTE DEVICE SESSION DETECTED — SECURE CHANNEL BYPASSED
     </div>
 
-    <div class="scan" id="scan">
-      <div class="scan-header">
-        <span>جاري تحليل الصورة...</span>
-        <span id="percentage">0%</span>
-      </div>
+    <div class="grid">
 
-      <div class="progress">
-        <div class="progress-bar" id="progressBar"></div>
-      </div>
+        <div class="panel">
 
-      <div class="status" id="status">
-        تجهيز الصورة...
-      </div>
-    </div>
+            <div class="panel-title">
+                [ REMOTE TERMINAL ]
+            </div>
 
-    <div class="result" id="result">
+            <div class="terminal" id="terminal"></div>
 
-      <div class="result-title">
-        <div class="success">✓</div>
-        <div>
-          <strong>اكتمل التحليل</strong>
-          <div style="color:#7e8ca5;font-size:13px;margin-top:4px">
-            تم إنشاء نتيجة تجريبية
-          </div>
-        </div>
-      </div>
+            <div class="progress-wrap">
 
-      <div class="result-grid">
+                <div class="progress-info">
+                    <span>PHOTO EXTRACTION</span>
+                    <span id="percent">0%</span>
+                </div>
 
-        <div class="result-box">
-          <small>نوع الملف</small>
-          <strong id="typeResult">JPEG</strong>
+                <div class="progress">
+                    <div class="bar" id="bar"></div>
+                </div>
+
+            </div>
+
         </div>
 
-        <div class="result-box">
-          <small>حالة الصورة</small>
-          <strong style="color:#42e49a">صالحة</strong>
+        <div class="panel">
+
+            <div class="panel-title">
+                [ TARGET DEVICE ]
+            </div>
+
+            <div class="device">
+
+                <div class="phone">
+
+                    <div class="screen">
+
+                        <div>
+                            <div class="scan-circle">
+                                SCAN
+                            </div>
+
+                            <br>
+
+                            DEVICE LINKED
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="stats">
+
+                <div class="stat">
+                    <small>DEVICE</small>
+                    <strong>ANDROID</strong>
+                </div>
+
+                <div class="stat">
+                    <small>CONNECTION</small>
+                    <strong>ACTIVE</strong>
+                </div>
+
+                <div class="stat">
+                    <small>PHOTOS</small>
+                    <strong id="photoCount">0</strong>
+                </div>
+
+                <div class="stat">
+                    <small>DATA</small>
+                    <strong id="data">0 MB</strong>
+                </div>
+
+            </div>
+
+            <div class="photos" id="photos"></div>
+
         </div>
-
-        <div class="result-box">
-          <small>درجة التحليل</small>
-          <strong>98.4%</strong>
-        </div>
-
-        <div class="result-box">
-          <small>الدقة</small>
-          <strong id="resolution">--</strong>
-        </div>
-
-        <div class="result-box">
-          <small>الحجم</small>
-          <strong id="sizeResult">--</strong>
-        </div>
-
-        <div class="result-box">
-          <small>نتيجة الفحص</small>
-          <strong style="color:#42e49a">Complete</strong>
-        </div>
-
-      </div>
-
-      <button class="btn reset" onclick="resetPage()">
-        تحليل صورة أخرى
-      </button>
 
     </div>
 
-    <div class="notice">
-      Demo — هذا الموقع تجريبي ولا يرسل الصور إلى خادم خارجي.
+    <div class="footer">
+        <span class="simulation">
+            DEMONSTRATION / SIMULATION ONLY — NO REAL DEVICE ACCESS
+        </span>
     </div>
 
-  </div>
 </div>
 
 
 <script>
 
-const fileInput = document.getElementById("fileInput");
-const dropArea = document.getElementById("dropArea");
+const terminal = document.getElementById("terminal");
+const bar = document.getElementById("bar");
+const percent = document.getElementById("percent");
+const photoCount = document.getElementById("photoCount");
+const data = document.getElementById("data");
+const photos = document.getElementById("photos");
 
-const preview = document.getElementById("preview");
-const previewImage = document.getElementById("previewImage");
+const commands = [
 
-const scan = document.getElementById("scan");
-const result = document.getElementById("result");
+    ["[+] Initializing remote session...", "gray"],
+    ["[*] Searching for available device...", ""],
+    ["[+] Target found: Android Device", "blue"],
+    ["[*] Establishing encrypted tunnel...", ""],
+    ["[+] Secure channel established", ""],
+    ["[*] Checking device permissions...", ""],
+    ["[+] Permission response received", ""],
+    ["[*] Loading media directory...", ""],
+    ["[+] /DCIM/Camera detected", ""],
+    ["[+] /Pictures detected", ""],
+    ["[*] Indexing image files...", ""],
+    ["[+] 128 image records discovered", ""],
+    ["[*] Preparing transfer queue...", ""],
+    ["[!] Beginning simulated extraction...", "red"]
 
-const progressBar = document.getElementById("progressBar");
-const percentage = document.getElementById("percentage");
-const statusText = document.getElementById("status");
+];
 
-let selectedFile = null;
+let commandIndex = 0;
 
+function addCommand() {
 
-// اختيار الملف
-fileInput.addEventListener("change", function() {
-
-  if (this.files.length > 0) {
-    handleFile(this.files[0]);
-  }
-
-});
-
-
-// Drag & Drop
-dropArea.addEventListener("dragover", function(e) {
-  e.preventDefault();
-  dropArea.classList.add("dragover");
-});
-
-dropArea.addEventListener("dragleave", function() {
-  dropArea.classList.remove("dragover");
-});
-
-dropArea.addEventListener("drop", function(e) {
-
-  e.preventDefault();
-
-  dropArea.classList.remove("dragover");
-
-  const file = e.dataTransfer.files[0];
-
-  if (file && file.type.startsWith("image/")) {
-    handleFile(file);
-  }
-
-});
-
-
-function handleFile(file) {
-
-  selectedFile = file;
-
-  const reader = new FileReader();
-
-  reader.onload = function(e) {
-
-    previewImage.src = e.target.result;
-
-    document.getElementById("fileName").textContent = file.name;
-
-    document.getElementById("fileSize").textContent =
-      formatSize(file.size);
-
-    dropArea.style.display = "none";
-    preview.style.display = "block";
-    scan.style.display = "block";
-
-    startScan();
-
-  };
-
-  reader.readAsDataURL(file);
-}
-
-
-function formatSize(bytes) {
-
-  if (bytes < 1024) {
-    return bytes + " B";
-  }
-
-  if (bytes < 1024 * 1024) {
-    return (bytes / 1024).toFixed(1) + " KB";
-  }
-
-  return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-
-}
-
-
-function startScan() {
-
-  let progress = 0;
-
-  const messages = [
-    "قراءة بيانات الصورة...",
-    "فحص خصائص الملف...",
-    "تحليل أبعاد الصورة...",
-    "معالجة البيانات...",
-    "إنهاء التحليل..."
-  ];
-
-  const interval = setInterval(function() {
-
-    progress += Math.floor(Math.random() * 8) + 4;
-
-    if (progress >= 100) {
-
-      progress = 100;
-
-      clearInterval(interval);
-
-      progressBar.style.width = "100%";
-      percentage.textContent = "100%";
-
-      statusText.textContent = "اكتمل التحليل";
-
-      showResult();
-
-      return;
+    if (commandIndex >= commands.length) {
+        startExtraction();
+        return;
     }
 
-    progressBar.style.width = progress + "%";
-    percentage.textContent = progress + "%";
+    const item = document.createElement("div");
 
-    const index = Math.min(
-      Math.floor(progress / 20),
-      messages.length - 1
-    );
+    item.className = "line " + commands[commandIndex][1];
 
-    statusText.textContent = messages[index];
+    item.textContent = commands[commandIndex][0];
 
-  }, 180);
+    terminal.appendChild(item);
 
-}
+    terminal.scrollTop = terminal.scrollHeight;
 
+    commandIndex++;
 
-function showResult() {
-
-  const image = new Image();
-
-  image.onload = function() {
-
-    document.getElementById("resolution").textContent =
-      this.width + " × " + this.height;
-
-  };
-
-  image.src = previewImage.src;
-
-  document.getElementById("typeResult").textContent =
-    selectedFile.type || "Image";
-
-  document.getElementById("sizeResult").textContent =
-    formatSize(selectedFile.size);
-
-  setTimeout(function() {
-    result.style.display = "block";
-  }, 500);
+    setTimeout(addCommand, 500);
 
 }
 
+function startExtraction() {
 
-function resetPage() {
+    let progress = 0;
+    let count = 0;
 
-  selectedFile = null;
+    const filenames = [
+        "IMG_2026_001.jpg",
+        "IMG_2026_002.jpg",
+        "DSC_4812.jpg",
+        "photo_0831.jpg",
+        "IMG_7742.png",
+        "Screenshot_19.png",
+        "Camera_2026.jpg",
+        "Vacation_04.jpg",
+        "IMG_9912.jpg",
+        "Photo_Archive.jpg"
+    ];
 
-  fileInput.value = "";
+    const interval = setInterval(() => {
 
-  dropArea.style.display = "flex";
-  preview.style.display = "none";
-  scan.style.display = "none";
-  result.style.display = "none";
+        progress += Math.floor(Math.random() * 4) + 1;
 
-  progressBar.style.width = "0%";
-  percentage.textContent = "0%";
-  statusText.textContent = "تجهيز الصورة...";
+        if (progress > 100)
+            progress = 100;
 
-  previewImage.src = "";
+        bar.style.width = progress + "%";
+        percent.textContent = progress + "%";
+
+        count = Math.floor((progress / 100) * 128);
+
+        photoCount.textContent = count;
+
+        data.textContent =
+            (count * 2.7).toFixed(1) + " MB";
+
+        if (Math.random() > .65) {
+
+            const row = document.createElement("div");
+
+            row.className = "photo-row";
+
+            const name =
+                filenames[Math.floor(Math.random() * filenames.length)];
+
+            row.textContent =
+                "✓ " + name + "  [" +
+                Math.floor(Math.random() * 900 + 100) +
+                " KB]";
+
+            photos.prepend(row);
+
+            if (photos.children.length > 7)
+                photos.removeChild(photos.lastChild);
+
+        }
+
+        if (progress >= 100) {
+
+            clearInterval(interval);
+
+            finish();
+
+        }
+
+    }, 130);
 
 }
+
+function finish() {
+
+    const final = document.createElement("div");
+
+    final.className = "line";
+
+    final.style.marginTop = "12px";
+    final.style.color = "#00ff88";
+    final.style.fontWeight = "bold";
+
+    final.textContent =
+        "[✓] SIMULATION COMPLETE — 128 FILES PROCESSED";
+
+    terminal.appendChild(final);
+
+    const note = document.createElement("div");
+
+    note.className = "line yellow";
+
+    note.style.marginTop = "8px";
+
+    note.textContent =
+        "[SYSTEM] This was a visual simulation. No files were accessed.";
+
+    terminal.appendChild(note);
+
+}
+
+addCommand();
 
 </script>
 
